@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useRef } from "react";
 
-import Map from "./node_modules/react-map-gl/dist/es5/exports-maplibre";
+import Map, { Marker } from "./node_modules/react-map-gl/dist/es5/exports-maplibre";
 import { GeolocateControl, FullscreenControl } from "./node_modules/react-map-gl/dist/es5/exports-maplibre";
+import maplibregl from "maplibre-gl";
 
 import * as mlbr from "./node_modules/maplibre-gl/dist/maplibre-gl";
 import type { MapRef } from "./node_modules/react-map-gl/dist/es5/exports-maplibre";
@@ -49,13 +50,17 @@ export function MyMap() {
   const geoRef = useRef<mlbr.GeolocateControl>(null);
   const [latitude, setLatitude] = useState(0);
   const [altitude, setAltitude] = useState(0);
+  const [visible, setVisible] = useState<boolean>(false);
   const [weatherData, setWeatherData]:
   [IDynamic, React.Dispatch<React.SetStateAction<IDynamic>>] = useState({});
+  const markerRef = useRef<maplibregl.Marker>(null);
 
   const onClickHandle = (event: mlbr.MapLayerMouseEvent) => {
-    if (!mapRef.current) {
+    if (!mapRef.current || !markerRef.current) {
       return;
     }
+
+    setVisible(true);
 
     let map = mapRef.current.getMap();
 
@@ -98,6 +103,7 @@ export function MyMap() {
         // mapStyle="https://api.maptiler.com/maps/satellite/style.json?key=PJQMm1QMNMIArTURauzn"//"https://api.maptiler.com/maps/streets/style.json?OpIi9ZULNHzrESv6T2vL"
         mapStyle="https://api.maptiler.com/maps/outdoor-v2/style.json?key=PJQMm1QMNMIArTURauzn"
       >
+        <Marker style={{visibility: visible ? "visible" : "hidden"}} color="red" longitude={altitude} latitude={latitude} ref={markerRef}></Marker>
       </Map>
       <br></br><br></br><br></br><br></br><br></br>
       <p className="textDefault">CGSG NK1, coordinates: &lt;{latitude},{altitude}&gt;</p>
